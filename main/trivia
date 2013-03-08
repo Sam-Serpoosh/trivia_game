@@ -16,7 +16,7 @@ begin
   game.roll(rand(5) + 1)
   
   if rand(9) == 7
-    not_a_winner = game.wrong_answer
+    not_a_winner = game.wrong_answer_and_not_done?
   else
     not_a_winner = game.correct_answer_and_not_done?
   end

@@ -3,13 +3,11 @@ require_relative "game_board"
 
 module UglyTrivia
   class Game
-    attr_accessor :current_player, :is_getting_out_of_penalty_box
+    attr_accessor :current_player, :is_getting_out_of_penalty_box, :places
 
     def  initialize
       @players = []
       @places = Array.new(6, 0)
-      @purses = Array.new(6, 0)
-      @in_penalty_box = Array.new(6, 0)
 
       @pop_questions = []
       @science_questions = []
@@ -26,7 +24,7 @@ module UglyTrivia
         @rock_questions.push "Rock Question #{i}"
       end
     end
-    
+
     def current_player_index
       @current_player
     end
@@ -35,16 +33,12 @@ module UglyTrivia
       @players[@current_player]
     end
 
-    def is_playable?
-      number_of_players >= 2
-    end
-
     def add(player_name)
       player = Player.new(player_name)
       player.go_in_penalty_box if @players.count == 0
       @players.push player
-      puts "#{player.name} was added"
-      puts "There is #{@players.length} number of players"
+      GameBoard.player_added(player)
+      GameBoard.show_num_of_players(@players.count)
     end
 
     def number_of_players
@@ -78,14 +72,25 @@ module UglyTrivia
       check_win_and_go_to_next_player
     end
 
-    def wrong_answer
-      puts 'Question was incorrectly answered'
-      puts "#{@players[@current_player]} was sent to the penalty box"
-      @in_penalty_box[@current_player] = true
+    def wrong_answer_and_not_done?
+      GameBoard.wrong_answer
+      GameBoard.sent_to_penalty_box(current_player)
+      current_player.go_in_penalty_box
+      next_player
+      true
+    end
 
-      @current_player += 1
-      @current_player = 0 if @current_player == @players.length
-      return true
+    def current_category
+      return 'Pop' if @places[@current_player] == 0
+      return 'Pop' if @places[@current_player] == 4
+      return 'Pop' if @places[@current_player] == 8
+      return 'Science' if @places[@current_player] == 1
+      return 'Science' if @places[@current_player] == 5
+      return 'Science' if @places[@current_player] == 9
+      return 'Sports' if @places[@current_player] == 2
+      return 'Sports' if @places[@current_player] == 6
+      return 'Sports' if @places[@current_player] == 10
+      return 'Rock'
     end
 
     private
@@ -134,19 +139,6 @@ module UglyTrivia
     def next_player
       @current_player += 1
       @current_player = 0 if @current_player == @players.count
-    end
-
-    def current_category
-      return 'Pop' if @places[@current_player] == 0
-      return 'Pop' if @places[@current_player] == 4
-      return 'Pop' if @places[@current_player] == 8
-      return 'Science' if @places[@current_player] == 1
-      return 'Science' if @places[@current_player] == 5
-      return 'Science' if @places[@current_player] == 9
-      return 'Sports' if @places[@current_player] == 2
-      return 'Sports' if @places[@current_player] == 6
-      return 'Sports' if @places[@current_player] == 10
-      return 'Rock'
     end
   end
 end

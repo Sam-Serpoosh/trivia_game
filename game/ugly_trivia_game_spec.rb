@@ -57,4 +57,16 @@ describe UglyTrivia::Game do
       not_won.should be_true
     end
   end
+
+  context "#wrong_answer" do
+    it "put the player in penalty box and move to next player" do
+      game.add("sam")
+      game.add("dave")
+      game.current_player = 1
+      game.wrong_answer_and_not_done?
+      game.current_player_index.should == 0
+      game.current_player = 1
+      game.current_player.should be_in_penalty_box
+    end
+  end
 end

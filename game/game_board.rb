@@ -1,4 +1,12 @@
 class GameBoard
+  def self.player_added(player)
+    puts "#{player.name} was added"
+  end
+  
+  def self.show_num_of_players(number)
+    puts "There is #{number} number of players"
+  end
+
   def self.show_current_player(player)
     puts "#{player.name} is the current player"
   end
@@ -26,8 +34,16 @@ class GameBoard
   def self.correct_answer
     puts "Answer was correct!!!!"
   end
+  
+  def self.wrong_answer
+    puts "Question was incorrectly answered"
+  end
 
   def self.show_points(player)
     puts "#{player.name} now has #{player.point} Gold Coins."
+  end
+
+  def self.sent_to_penalty_box(player)
+    puts "#{player.name} was sent to penalty box"
   end
 end
