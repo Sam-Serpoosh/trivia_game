@@ -8,7 +8,7 @@ class Player
     @in_penalty_box = false
   end
 
-  def change_the_place(moves)
+  def change_place(moves)
     @current_place += moves
     @current_place -= 12 if @current_place > 11
   end

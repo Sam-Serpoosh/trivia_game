@@ -1,5 +1,6 @@
 require_relative "player"
 require_relative "game_board"
+require_relative "questionaire"
 
 module UglyTrivia
   class Game
@@ -7,22 +8,9 @@ module UglyTrivia
 
     def  initialize
       @players = []
-      @places = Array.new(6, 0)
-
-      @pop_questions = []
-      @science_questions = []
-      @sports_questions = []
-      @rock_questions = []
-
       @current_player = 0
       @is_getting_out_of_penalty_box = false
-
-      50.times do |i|
-        @pop_questions.push "Pop Question #{i}"
-        @science_questions.push "Science Question #{i}"
-        @sports_questions.push "Sports Question #{i}"
-        @rock_questions.push "Rock Question #{i}"
-      end
+      @questionaire = Questionaire.new
     end
 
     def current_player_index
@@ -33,16 +21,12 @@ module UglyTrivia
       @players[@current_player]
     end
 
-    def add(player_name)
+    def add_player(player_name)
       player = Player.new(player_name)
       player.go_in_penalty_box if @players.count == 0
       @players.push player
       GameBoard.player_added(player)
       GameBoard.show_num_of_players(@players.count)
-    end
-
-    def number_of_players
-      @players.length
     end
 
     def roll(roll)
@@ -81,16 +65,7 @@ module UglyTrivia
     end
 
     def current_category
-      return 'Pop' if @places[@current_player] == 0
-      return 'Pop' if @places[@current_player] == 4
-      return 'Pop' if @places[@current_player] == 8
-      return 'Science' if @places[@current_player] == 1
-      return 'Science' if @places[@current_player] == 5
-      return 'Science' if @places[@current_player] == 9
-      return 'Sports' if @places[@current_player] == 2
-      return 'Sports' if @places[@current_player] == 6
-      return 'Sports' if @places[@current_player] == 10
-      return 'Rock'
+      @questionaire.category(current_player.current_place)
     end
 
     private
@@ -105,17 +80,10 @@ module UglyTrivia
     end
 
     def move_and_ask_question(roll)
-      current_player.change_the_place(roll)
+      current_player.change_place(roll)
       GameBoard.show_location_of(current_player)
       GameBoard.show_category(current_category)
-      ask_question
-    end
-
-    def ask_question
-      puts @pop_questions.shift if current_category == 'Pop'
-      puts @science_questions.shift if current_category == 'Science'
-      puts @sports_questions.shift if current_category == 'Sports'
-      puts @rock_questions.shift if current_category == 'Rock'
+      @questionaire.ask_question(current_category)
     end
 
     def not_getting_out_of_box

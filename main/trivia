@@ -3,24 +3,19 @@ $:.unshift(File.dirname(__FILE__) + '/../game')
 
 require 'ugly_trivia_game'
 
-not_a_winner = false
+not_done = false
 
 game = UglyTrivia::Game.new
 
-game.add 'Chet'
-#game.add 'Pat'
-#game.add 'Sue'
+game.add_player 'Chet'
+game.add_player 'Pat'
+game.add_player 'Sue'
 
 begin
-  
   game.roll(rand(5) + 1)
-  
   if rand(9) == 7
-    not_a_winner = game.wrong_answer_and_not_done?
+    not_done = game.wrong_answer_and_not_done?
   else
-    not_a_winner = game.correct_answer_and_not_done?
+    not_done = game.correct_answer_and_not_done?
   end
-  
-  
-  
-end while not_a_winner
+end while not_done
