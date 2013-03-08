@@ -1,5 +1,11 @@
+require_relative "player"
+require_relative "game_board"
+
 module UglyTrivia
   class Game
+    attr_accessor :current_player
+    attr_reader :is_getting_out_of_penalty_box
+
     def  initialize
       @players = []
       @places = Array.new(6, 0)
@@ -22,19 +28,20 @@ module UglyTrivia
       end
     end
 
+    def current_player
+      @players[@current_player]
+    end
+
     def is_playable?
       number_of_players >= 2
     end
 
     def add(player_name)
-      @players.push player_name
-      @places[number_of_players] = 0
-      @purses[number_of_players] = 0
-      @in_penalty_box[number_of_players] = false
-puts "#{player_name} was added"
-      puts "They are player number #{@players.length}"
-
-      true
+      player = Player.new(player_name)
+      player.go_in_penalty_box if @players.count == 0
+      @players.push player
+      puts "#{player.name} was added"
+      puts "There is #{@players.length} number of players"
     end
 
     def number_of_players
@@ -42,37 +49,83 @@ puts "#{player_name} was added"
     end
 
     def roll(roll)
-      puts "#{@players[@current_player]} is the current player"
-      puts "They have rolled a #{roll}"
+      GameBoard.show_current_player(current_player)
+      GameBoard.show_roll(roll)
 
-      if @in_penalty_box[@current_player]
-        if roll % 2 != 0
-          @is_getting_out_of_penalty_box = true
-
-          puts "#{@players[@current_player]} is getting out of the penalty box"
-          @places[@current_player] = @places[@current_player] + roll
-          @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
-
-          puts "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
-          puts "The category is #{current_category}"
-          ask_question
+      if current_player.in_penalty_box?
+        if rolled_odd?(roll)
+          getting_out_of_box
+          move_and_ask_question(roll)
         else
-          puts "#{@players[@current_player]} is not getting out of the penalty box"
-          @is_getting_out_of_penalty_box = false
-          end
-
+          not_getting_out_of_box
+        end
       else
-
-        @places[@current_player] = @places[@current_player] + roll
-        @places[@current_player] = @places[@current_player] - 12 if @places[@current_player] > 11
-
-        puts "#{@players[@current_player]}'s new location is #{@places[@current_player]}"
-        puts "The category is #{current_category}"
-        ask_question
+        move_and_ask_question(roll)
       end
     end
 
-  private
+    def was_correctly_answered
+      if @in_penalty_box[@current_player]
+        if @is_getting_out_of_penalty_box
+          puts 'Answer was correct!!!!'
+          @purses[@current_player] += 1
+          puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+
+          winner = did_player_win
+          @current_player += 1
+          @current_player = 0 if @current_player == @players.length
+
+          winner
+        else
+          @current_player += 1
+          @current_player = 0 if @current_player == @players.length
+          true
+        end
+      else
+        puts "Answer was correct!!!!"
+        @purses[@current_player] += 1
+        puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+
+        winner = did_player_win
+        @current_player += 1
+        @current_player = 0 if @current_player == @players.length
+
+        return winner
+      end
+    end
+
+    def wrong_answer
+      puts 'Question was incorrectly answered'
+      puts "#{@players[@current_player]} was sent to the penalty box"
+      @in_penalty_box[@current_player] = true
+
+      @current_player += 1
+      @current_player = 0 if @current_player == @players.length
+      return true
+    end
+
+    private
+
+    def rolled_odd?(roll)
+      roll % 2 != 0
+    end
+
+    def getting_out_of_box
+      @is_getting_out_of_penalty_box = true
+      GameBoard.out_of_box(current_player)
+    end
+
+    def not_getting_out_of_box
+      @is_getting_out_of_penalty_box = false
+      GameBoard.not_out_of_box(current_player)
+    end
+
+    def move_and_ask_question(roll)
+      current_player.change_the_place(roll)
+      GameBoard.show_location_of(current_player)
+      GameBoard.show_category(current_category)
+      ask_question
+    end
 
     def ask_question
       puts @pop_questions.shift if current_category == 'Pop'
@@ -93,54 +146,6 @@ puts "#{player_name} was added"
       return 'Sports' if @places[@current_player] == 10
       return 'Rock'
     end
-
-  public
-
-    def was_correctly_answered
-      if @in_penalty_box[@current_player]
-        if @is_getting_out_of_penalty_box
-          puts 'Answer was correct!!!!'
-          @purses[@current_player] += 1
-          puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
-
-          winner = did_player_win()
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
-
-          winner
-        else
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
-          true
-        end
-
-
-
-      else
-
-        puts "Answer was corrent!!!!"
-        @purses[@current_player] += 1
-        puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
-
-        winner = did_player_win
-        @current_player += 1
-        @current_player = 0 if @current_player == @players.length
-
-        return winner
-      end
-    end
-
-    def wrong_answer
-  		puts 'Question was incorrectly answered'
-  		puts "#{@players[@current_player]} was sent to the penalty box"
-  		@in_penalty_box[@current_player] = true
-
-      @current_player += 1
-      @current_player = 0 if @current_player == @players.length
-  		return true
-    end
-
-  private
 
     def did_player_win
       !(@purses[@current_player] == 6)
