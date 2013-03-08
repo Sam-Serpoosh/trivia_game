@@ -22,4 +22,12 @@ class GameBoard
   def self.show_roll(roll) 
     puts "They have rolled #{roll}"
   end
+  
+  def self.correct_answer
+    puts "Answer was correct!!!!"
+  end
+
+  def self.show_points(player)
+    puts "#{player.name} now has #{player.point} Gold Coins."
+  end
 end

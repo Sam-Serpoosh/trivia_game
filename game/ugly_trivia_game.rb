@@ -3,8 +3,7 @@ require_relative "game_board"
 
 module UglyTrivia
   class Game
-    attr_accessor :current_player
-    attr_reader :is_getting_out_of_penalty_box
+    attr_accessor :current_player, :is_getting_out_of_penalty_box
 
     def  initialize
       @players = []
@@ -26,6 +25,10 @@ module UglyTrivia
         @sports_questions.push "Sports Question #{i}"
         @rock_questions.push "Rock Question #{i}"
       end
+    end
+    
+    def current_player_index
+      @current_player
     end
 
     def current_player
@@ -64,34 +67,15 @@ module UglyTrivia
       end
     end
 
-    def was_correctly_answered
-      if @in_penalty_box[@current_player]
+    def correct_answer_and_not_done?
+      if current_player.in_penalty_box?
         if @is_getting_out_of_penalty_box
-          puts 'Answer was correct!!!!'
-          @purses[@current_player] += 1
-          puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
-
-          winner = did_player_win
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
-
-          winner
-        else
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
-          true
+          return check_win_and_go_to_next_player
         end
-      else
-        puts "Answer was correct!!!!"
-        @purses[@current_player] += 1
-        puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
-
-        winner = did_player_win
-        @current_player += 1
-        @current_player = 0 if @current_player == @players.length
-
-        return winner
+        next_player
+        return true
       end
+      check_win_and_go_to_next_player
     end
 
     def wrong_answer
@@ -115,11 +99,6 @@ module UglyTrivia
       GameBoard.out_of_box(current_player)
     end
 
-    def not_getting_out_of_box
-      @is_getting_out_of_penalty_box = false
-      GameBoard.not_out_of_box(current_player)
-    end
-
     def move_and_ask_question(roll)
       current_player.change_the_place(roll)
       GameBoard.show_location_of(current_player)
@@ -134,6 +113,29 @@ module UglyTrivia
       puts @rock_questions.shift if current_category == 'Rock'
     end
 
+    def not_getting_out_of_box
+      @is_getting_out_of_penalty_box = false
+      GameBoard.not_out_of_box(current_player)
+    end
+
+    def check_win_and_go_to_next_player
+      current_player.increment_point
+      GameBoard.correct_answer
+      GameBoard.show_points(current_player)
+      no_win_for_current_player = current_player_did_not_win?
+      next_player
+      no_win_for_current_player
+    end
+
+    def current_player_did_not_win?
+      current_player.won? == false
+    end
+
+    def next_player
+      @current_player += 1
+      @current_player = 0 if @current_player == @players.count
+    end
+
     def current_category
       return 'Pop' if @places[@current_player] == 0
       return 'Pop' if @places[@current_player] == 4
@@ -145,10 +147,6 @@ module UglyTrivia
       return 'Sports' if @places[@current_player] == 6
       return 'Sports' if @places[@current_player] == 10
       return 'Rock'
-    end
-
-    def did_player_win
-      !(@purses[@current_player] == 6)
     end
   end
 end
