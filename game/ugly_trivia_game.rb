@@ -4,8 +4,6 @@ require_relative "questionaire"
 
 module UglyTrivia
   class Game
-    attr_accessor :current_player, :is_getting_out_of_penalty_box, :places
-
     def  initialize
       @players = []
       @current_player = 0
@@ -13,17 +11,9 @@ module UglyTrivia
       @questionaire = Questionaire.new
     end
 
-    def current_player_index
-      @current_player
-    end
-
-    def current_player
-      @players[@current_player]
-    end
-
     def add_player(player_name)
       player = Player.new(player_name)
-      player.go_in_penalty_box if @players.count == 0
+      player.go_in_penalty_box if no_player?
       @players.push player
       GameBoard.player_added(player)
       GameBoard.show_num_of_players(@players.count)
@@ -64,11 +54,15 @@ module UglyTrivia
       true
     end
 
-    def current_category
-      @questionaire.category(current_player.current_place)
+    private
+
+    def no_player?
+      @players.count == 0
     end
 
-    private
+    def current_player
+      @players[@current_player]
+    end
 
     def rolled_odd?(roll)
       roll % 2 != 0
@@ -84,6 +78,10 @@ module UglyTrivia
       GameBoard.show_location_of(current_player)
       GameBoard.show_category(current_category)
       @questionaire.ask_question(current_category)
+    end
+
+    def current_category
+      @questionaire.category(current_player.current_place)
     end
 
     def not_getting_out_of_box
