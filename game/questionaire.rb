@@ -1,4 +1,9 @@
 class Questionaire
+  POP = "Pop"
+  SCIENCE = "Science"
+  SPORTS = "Sports"
+  ROCK = "Rock"
+
   def initialize
     @pop_questions = []
     @science_questions = []
@@ -14,22 +19,22 @@ class Questionaire
   end
 
   def ask_question(category)
-    puts @pop_questions.shift if category == 'Pop'
-    puts @science_questions.shift if category == 'Science'
-    puts @sports_questions.shift if category == 'Sports'
-    puts @rock_questions.shift if category == 'Rock'
+    return @pop_questions.shift if category == POP
+    return @science_questions.shift if category == SCIENCE
+    return @sports_questions.shift if category == SPORTS
+    return @rock_questions.shift if category == ROCK
   end
 
   def category(category_num)
-    return 'Pop' if category_num == 0
-    return 'Pop' if category_num == 4
-    return 'Pop' if category_num == 8
-    return 'Science' if category_num == 1
-    return 'Science' if category_num == 5
-    return 'Science' if category_num == 9
-    return 'Sports' if category_num == 2
-    return 'Sports' if category_num == 6
-    return 'Sports' if category_num == 10
-    "Rock"
+    return POP if category_num == 0 || 
+                  category_num == 4 || 
+                  category_num == 8
+    return SCIENCE if category_num == 1 || 
+                      category_num == 5 ||
+                      category_num == 9
+    return SPORTS if category_num == 2 || 
+                     category_num == 6 || 
+                     category_num == 10
+    ROCK
   end
 end

@@ -77,7 +77,8 @@ module UglyTrivia
       current_player.change_place(roll)
       GameBoard.show_location_of(current_player)
       GameBoard.show_category(current_category)
-      @questionaire.ask_question(current_category)
+      question = @questionaire.ask_question(current_category)
+      GameBoard.show_question(question)
     end
 
     def current_category

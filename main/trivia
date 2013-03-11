@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 $:.unshift(File.dirname(__FILE__) + '/../game')
 
-require 'ugly_trivia_game'
+require 'trivia_game'
 
 not_done = false
 

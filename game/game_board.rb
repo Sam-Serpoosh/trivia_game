@@ -46,4 +46,8 @@ class GameBoard
   def self.sent_to_penalty_box(player)
     puts "#{player.name} was sent to penalty box"
   end
+
+  def self.show_question(question)
+    puts question if !question.nil?
+  end
 end
