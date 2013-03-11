@@ -5,7 +5,7 @@ require 'trivia_game'
 
 not_done = false
 
-game = UglyTrivia::Game.new
+game = Trivia::Game.new
 
 game.add_player 'Chet'
 game.add_player 'Pat'

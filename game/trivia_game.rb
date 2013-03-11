@@ -2,13 +2,13 @@ require_relative "player"
 require_relative "game_board"
 require_relative "questionaire"
 
-module UglyTrivia
+module Trivia
   class Game
-    def  initialize
+    def  initialize(questionaire = Questionaire.new)
       @players = []
       @current_player = 0
       @is_getting_out_of_penalty_box = false
-      @questionaire = Questionaire.new
+      @questionaire = questionaire
     end
 
     def add_player(player_name)
@@ -38,12 +38,12 @@ module UglyTrivia
     def correct_answer_and_not_done?
       if current_player.in_penalty_box?
         if @is_getting_out_of_penalty_box
-          return check_win_and_go_to_next_player
+          return check_not_done_and_go_to_next_player
         end
         next_player
         return true
       end
-      check_win_and_go_to_next_player
+      check_not_done_and_go_to_next_player
     end
 
     def wrong_answer_and_not_done?
@@ -54,7 +54,11 @@ module UglyTrivia
       true
     end
 
-    private
+    def player_at(player_number)
+      @players[player_number]
+    end
+
+    #private
 
     def no_player?
       @players.count == 0
@@ -90,13 +94,13 @@ module UglyTrivia
       GameBoard.not_out_of_box(current_player)
     end
 
-    def check_win_and_go_to_next_player
+    def check_not_done_and_go_to_next_player
       current_player.increment_point
       GameBoard.correct_answer
       GameBoard.show_points(current_player)
-      no_win_for_current_player = current_player_did_not_win?
+      not_done = current_player_did_not_win?
       next_player
-      no_win_for_current_player
+      not_done
     end
 
     def current_player_did_not_win?
@@ -106,6 +110,7 @@ module UglyTrivia
     def next_player
       @current_player += 1
       @current_player = 0 if @current_player == @players.count
+      self
     end
   end
 end
